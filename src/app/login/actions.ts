@@ -32,6 +32,10 @@ export async function login(_: FormState, formData: FormData): Promise<FormState
   const { data, error } = await supabase.auth.signInWithPassword({ email: msnvToEmail(msnv), password });
   if (error || !data.user) {
     await logLogin(msnv, null, false);
+    if (error && error.status !== 400) {
+      console.error("signInWithPassword", error.status, error.name, error.message);
+      return { error: `Lỗi kết nối máy chủ xác thực (${error.status ?? error.name}): ${error.message}` };
+    }
     return { error: "MSNV hoặc mật khẩu không đúng" };
   }
   const { data: profile } = await supabase.from("profiles").select("status").eq("id", data.user.id).single();
