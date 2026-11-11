@@ -25,7 +25,7 @@ Nội dung checklist nằm trong DB (`checklist_sections`, `checklist_items`) �
 ### 1. Supabase
 1. Tạo project tại supabase.com.
 2. **SQL Editor** → chạy lần lượt các file trong `supabase/migrations/`:
-   `0001_schema.sql` → `0002_seed.sql` → `0003_submit_rpc.sql` → `0004_dashboard.sql`
+   `0001_schema.sql` → `0002_seed.sql` → `0003_submit_rpc.sql` → `0004_dashboard.sql` → `0005_harden_functions.sql`
    (hoặc `supabase link` + `supabase db push`).
 3. **Authentication → Providers → Email**: tắt *Confirm email* (tài khoản do Admin tạo).
 
