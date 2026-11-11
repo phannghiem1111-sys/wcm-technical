@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { msnvToEmail } from "@/lib/constants";
+import { envProblem } from "@/lib/supabase/env";
 
 export type FormState = { error?: string; ok?: string } | undefined;
 
@@ -28,6 +29,8 @@ export async function login(_: FormState, formData: FormData): Promise<FormState
   const next = String(formData.get("next") ?? "/");
   if (!msnv || !password) return { error: "Vui lòng nhập MSNV và mật khẩu" };
 
+  const problem = envProblem();
+  if (problem) return { error: problem };
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email: msnvToEmail(msnv), password });
   if (error || !data.user) {
