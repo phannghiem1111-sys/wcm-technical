@@ -5,16 +5,18 @@ type Attachment = { filename: string; content: Buffer };
 type Mail = { to: string[]; bcc?: string[]; subject: string; html: string; attachments?: Attachment[] };
 
 const clean = (v?: string) => (v ?? "").trim();
+// Chấp nhận cả tên biến GMAIL_APP (viết tắt) lẫn GMAIL_APP_PASSWORD
+const gmailPass = () => clean(process.env.GMAIL_APP_PASSWORD) || clean(process.env.GMAIL_APP);
 
 /** Ưu tiên Gmail (GMAIL_USER + GMAIL_APP_PASSWORD); nếu không có thì dùng Resend (RESEND_API_KEY). */
 export function mailConfigured() {
-  return Boolean((clean(process.env.GMAIL_USER) && clean(process.env.GMAIL_APP_PASSWORD)) || clean(process.env.RESEND_API_KEY));
+  return Boolean((clean(process.env.GMAIL_USER) && gmailPass()) || clean(process.env.RESEND_API_KEY));
 }
 export const senderAddress = () => clean(process.env.GMAIL_USER);
 
 export async function sendMail(opts: Mail) {
   const user = clean(process.env.GMAIL_USER);
-  const pass = clean(process.env.GMAIL_APP_PASSWORD).replace(/\s+/g, "");
+  const pass = gmailPass().replace(/\s+/g, "");
   if (user && pass) {
     try {
       const t = nodemailer.createTransport({ service: "gmail", auth: { user, pass } });
