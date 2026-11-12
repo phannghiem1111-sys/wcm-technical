@@ -1,7 +1,7 @@
 import * as XLSX from "xlsx";
 import { createClient } from "@/lib/supabase/server";
 import { applyInspectionFilters, type InspectionFilters } from "@/lib/filters";
-import { FORM_META, RESULT_LABEL, STATUS_LABEL, type FormType, type ItemResult } from "@/lib/constants";
+import { canExport, FORM_META, RESULT_LABEL, STATUS_LABEL, type FormType, type ItemResult } from "@/lib/constants";
 
 export const runtime = "nodejs";
 
@@ -11,6 +11,8 @@ export async function GET(req: Request) {
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims) return new Response("Unauthorized", { status: 401 });
+  const { data: me } = await supabase.from("profiles").select("role").eq("id", claims.claims.sub).single();
+  if (!me || !canExport(me.role)) return new Response("Chỉ Đội trưởng trở lên được xuất dữ liệu Excel", { status: 403 });
 
   const f = Object.fromEntries(new URL(req.url).searchParams) as InspectionFilters;
   const { data } = await applyInspectionFilters(supabase, f).order("inspection_date", { ascending: false }).limit(5000);

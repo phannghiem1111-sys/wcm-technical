@@ -48,7 +48,7 @@ export async function saveUser(_: ActionState, fd: FormData): Promise<ActionStat
   if (password.length < 8) return { error: "Mật khẩu tối thiểu 8 ký tự" };
   const { data: created, error } = await admin.auth.admin.createUser({ email: msnvToEmail(msnv), password, email_confirm: true, user_metadata: { msnv } });
   if (error || !created.user) return { error: error?.message.includes("already") ? "MSNV đã tồn tại" : error?.message };
-  const { error: pErr } = await admin.from("profiles").insert({ id: created.user.id, ...profile });
+  const { error: pErr } = await admin.from("profiles").insert({ id: created.user.id, ...profile, must_change_password: true });
   if (pErr) { await admin.auth.admin.deleteUser(created.user.id); return { error: pErr.code === "23505" ? "MSNV đã tồn tại" : pErr.message }; }
   revalidatePath("/admin/users");
   return { ok: `Đã tạo tài khoản ${msnv}. Mật khẩu: ${password}` };
@@ -75,6 +75,7 @@ export async function resetPassword(msnv: string, requestId?: number) {
   const password = genPassword();
   const { error } = await admin.auth.admin.updateUserById(target.id, { password });
   if (error) return { error: error.message };
+  await admin.from("profiles").update({ must_change_password: true }).eq("id", target.id);
   if (requestId) await admin.from("password_reset_requests").update({ status: "done", handled_by: me.id, handled_at: new Date().toISOString() }).eq("id", requestId);
   revalidatePath("/admin/reset-requests");
   return { ok: true, password };
@@ -123,11 +124,13 @@ export async function changePassword(_: ActionState, fd: FormData): Promise<Acti
   const current = String(fd.get("current") ?? "");
   const next = String(fd.get("next") ?? "");
   if (next.length < 8) return { error: "Mật khẩu mới tối thiểu 8 ký tự" };
+  if (next === current) return { error: "Mật khẩu mới phải khác mật khẩu hiện tại" };
   if (next !== String(fd.get("confirm") ?? "")) return { error: "Xác nhận mật khẩu không khớp" };
   const supabase = await createClient();
   const { error: authErr } = await supabase.auth.signInWithPassword({ email: msnvToEmail(me.msnv), password: current });
   if (authErr) return { error: "Mật khẩu hiện tại không đúng" };
   const { error } = await supabase.auth.updateUser({ password: next });
   if (error) return { error: error.message };
+  if (me.must_change_password) await createAdminClient().from("profiles").update({ must_change_password: false }).eq("id", me.id);
   return { ok: "Đã đổi mật khẩu" };
 }

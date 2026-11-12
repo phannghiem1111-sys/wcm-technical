@@ -3,7 +3,7 @@ import { FileSpreadsheet, ChevronRight, Search } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { applyInspectionFilters, type InspectionFilters } from "@/lib/filters";
-import { FORM_META, STATUS_LABEL, type FormType } from "@/lib/constants";
+import { canExport, FORM_META, STATUS_LABEL, type FormType } from "@/lib/constants";
 import { fmtDate, cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ type Row = { id: string; code: string; form_type: FormType; status: string; insp
 
 export default async function InspectionsPage({ searchParams }: { searchParams: Promise<InspectionFilters> }) {
   const f = await searchParams;
-  await requireProfile();
+  const me = await requireProfile();
   const supabase = await createClient();
   const page = Math.max(1, Number(f.page) || 1);
   const { data, count } = await applyInspectionFilters(supabase, f, "id, code, form_type, status, inspection_date, store_code, store_name, inspector_name, inspector_msnv, score, fail_items", { count: "exact" })
@@ -37,7 +37,7 @@ export default async function InspectionsPage({ searchParams }: { searchParams: 
       <PageHeader
         title="Kho biên bản & lịch sử"
         desc={`Lưu trữ toàn bộ biên bản NSO, kiểm tra định kỳ và bảo trì · ${total} kết quả`}
-        actions={<Button variant="outline" asChild><a href={`/api/inspections/export?${exportQs}`}><FileSpreadsheet className="text-emerald-600" /> Xuất Excel</a></Button>}
+        actions={canExport(me.role) && <Button variant="outline" asChild><a href={`/api/inspections/export?${exportQs}`}><FileSpreadsheet className="text-emerald-600" /> Xuất Excel</a></Button>}
       />
       <Card className="mb-4 p-3">
         <form className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">

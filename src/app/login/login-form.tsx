@@ -1,5 +1,5 @@
 "use client";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff, IdCard, Lock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,13 @@ import { login } from "./actions";
 export function LoginForm({ next, locked }: { next: string; locked: boolean }) {
   const [state, action, pending] = useActionState(login, undefined);
   const [show, setShow] = useState(false);
+  const msnvRef = useRef<HTMLInputElement>(null);
+  // Ghi nhớ MSNV trên thiết bị này (mật khẩu do trình duyệt/điện thoại ghi nhớ qua autocomplete)
+  useEffect(() => {
+    try { const v = localStorage.getItem("wcm_msnv"); if (v && msnvRef.current && !msnvRef.current.value) msnvRef.current.value = v; } catch { /* bỏ qua */ }
+  }, []);
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} onSubmit={() => { try { localStorage.setItem("wcm_msnv", (msnvRef.current?.value ?? "").trim()); } catch { /* bỏ qua */ } }} className="space-y-4">
       <input type="hidden" name="next" value={next} />
       {(state?.error || locked) && (
         <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">
@@ -22,7 +27,7 @@ export function LoginForm({ next, locked }: { next: string; locked: boolean }) {
         <Label htmlFor="msnv">Mã số nhân viên (MSNV)</Label>
         <div className="relative">
           <IdCard className="absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground" />
-          <Input id="msnv" name="msnv" required autoComplete="username" autoCapitalize="characters" placeholder="VD: 123456" className="h-12 pl-10 uppercase" />
+          <Input id="msnv" name="msnv" ref={msnvRef} inputMode="numeric" required autoComplete="username" autoCapitalize="characters" placeholder="VD: 123456" className="h-12 pl-10 uppercase" />
         </div>
       </div>
       <div className="space-y-2">

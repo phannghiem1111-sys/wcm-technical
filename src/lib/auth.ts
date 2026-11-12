@@ -15,6 +15,7 @@ export type Profile = {
   team_lead_id: string | null;
   phone: string | null;
   status: "active" | "locked";
+  must_change_password: boolean;
   regions?: { name: string } | null;
 };
 

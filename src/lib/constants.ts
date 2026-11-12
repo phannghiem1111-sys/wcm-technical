@@ -9,6 +9,8 @@ export const ROLE_LABEL: Record<AppRole, string> = {
   doi_truong: "Đội trưởng",
   nhan_vien: "Nhân viên kỹ thuật",
 };
+/** Nhân viên chỉ đăng nhập và tạo báo cáo; từ Đội trưởng trở lên mới được xuất dữ liệu Excel. */
+export const canExport = (r: AppRole) => r !== "nhan_vien";
 export const ROLE_ORDER: AppRole[] = ["admin", "truong_phong", "truong_bo_phan", "doi_truong", "nhan_vien"];
 
 export const FORM_META: Record<FormType, { title: string; short: string; badge: string; color: string; desc: string }> = {
