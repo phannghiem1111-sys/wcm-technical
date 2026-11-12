@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, FilePlus2, FileText, CalendarCheck, Store, Users, Settings, UserCircle, LogOut, History, KeyRound, Plus } from "lucide-react";
+import { useSyncExternalStore } from "react";
+import { PanelLeftClose, PanelLeftOpen, LayoutDashboard, FilePlus2, FileText, CalendarCheck, Store, Users, Settings, UserCircle, LogOut, History, KeyRound, Plus } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ROLE_LABEL, type AppRole } from "@/lib/constants";
@@ -23,6 +24,16 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/settings", label: "Cấu hình checklist", icon: Settings, roles: ["admin"] },
 ];
 
+// Trạng thái thu gọn thanh menu, nhớ trên thiết bị
+const KEY = "wcm_sidebar_collapsed";
+const listeners = new Set<() => void>();
+const subscribe = (cb: () => void) => { listeners.add(cb); return () => { listeners.delete(cb); }; };
+const getSnapshot = () => { try { return localStorage.getItem(KEY) === "1"; } catch { return false; } };
+function setCollapsed(v: boolean) {
+  try { localStorage.setItem(KEY, v ? "1" : "0"); } catch { /* bỏ qua */ }
+  listeners.forEach((l) => l());
+}
+
 function isActive(path: string, href: string) {
   if (href === "/") return path === "/";
   if (href === "/inspections") return path === "/inspections" || (path.startsWith("/inspections/") && !path.startsWith("/inspections/new"));
@@ -31,13 +42,17 @@ function isActive(path: string, href: string) {
 
 export function AppShell({ children, user }: { children: React.ReactNode; user: { full_name: string; msnv: string; role: AppRole } }) {
   const path = usePathname();
+  const collapsed = useSyncExternalStore(subscribe, getSnapshot, () => false);
   const adminItems = ADMIN_NAV.filter((n) => !n.roles || n.roles.includes(user.role));
 
   return (
-    <div className="min-h-dvh lg:pl-72">
+    <div className={cn("min-h-dvh transition-[padding] duration-200", collapsed ? "lg:pl-0" : "lg:pl-72")}>
       {/* Sidebar desktop */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-72 flex-col bg-zinc-950 text-zinc-300 lg:flex">
-        <div className="border-b border-white/10 p-5"><Logo light /></div>
+      <aside className={cn("fixed inset-y-0 left-0 z-40 hidden w-72 flex-col bg-zinc-950 text-zinc-300 transition-transform duration-200", collapsed ? "-translate-x-full lg:hidden" : "lg:flex")} aria-hidden={collapsed}>
+        <div className="flex items-center justify-between gap-2 border-b border-white/10 p-5">
+          <Logo light />
+          <button type="button" onClick={() => setCollapsed(true)} className="shrink-0 rounded-lg p-2 text-zinc-400 hover:bg-white/10 hover:text-white" aria-label="Đóng thanh menu" title="Đóng thanh menu"><PanelLeftClose className="size-5" /></button>
+        </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Nghiệp vụ</p>
           {NAV.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
@@ -58,6 +73,13 @@ export function AppShell({ children, user }: { children: React.ReactNode; user: 
         </div>
       </aside>
 
+      {/* Nút mở lại thanh menu (desktop) */}
+      {collapsed && (
+        <button type="button" onClick={() => setCollapsed(false)} className="fixed left-3 top-3 z-40 hidden items-center gap-2 rounded-xl bg-zinc-950 px-3 py-2 text-sm font-bold text-white shadow-lg hover:bg-zinc-800 lg:flex" aria-label="Mở thanh menu" title="Mở thanh menu">
+          <PanelLeftOpen className="size-5" /> Menu
+        </button>
+      )}
+
       {/* Header mobile */}
       <header className="sticky top-0 z-30 flex items-center justify-between bg-primary px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] text-white shadow-md lg:hidden">
         <div className="flex items-center gap-2">
@@ -73,7 +95,7 @@ export function AppShell({ children, user }: { children: React.ReactNode; user: 
         <Link href="/profile" className="rounded-full bg-white/15 p-2" aria-label="Tài khoản"><UserCircle className="size-5" /></Link>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-3 pb-28 pt-4 sm:px-6 lg:pb-10 lg:pt-8">{children}</main>
+      <main className={cn("mx-auto w-full max-w-7xl px-3 pb-28 pt-4 sm:px-6 lg:pb-10 lg:pt-8", collapsed && "lg:pt-16")}>{children}</main>
 
       {/* Bottom nav mobile */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t bg-white/95 pb-safe backdrop-blur lg:hidden">
