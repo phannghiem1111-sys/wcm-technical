@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, FileDown, MapPin, CalendarDays, User, Store } from "lucide-react";
+import { ArrowLeft, FileDown, MapPin, CalendarDays, User, Store, Mail } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { groupBySection, loadInspection } from "@/lib/inspection-data";
@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResultBadge, ScoreBadge, StatusBadge } from "@/components/result-badge";
 import { ReviewActions } from "./review-actions";
+import { SendMailButton } from "./send-mail-button";
 
 export const metadata = { title: "Chi tiết biên bản" };
 
@@ -44,6 +45,8 @@ export default async function InspectionDetail({ params }: { params: Promise<{ i
           <div className="space-y-1.5 text-sm">
             <div className="flex items-center gap-2 font-bold"><Store className="size-4 text-primary" /> {i.store_code} · {i.store_name}</div>
             {i.store_address && <div className="flex items-start gap-2 text-muted-foreground"><MapPin className="mt-0.5 size-4" /> {i.store_address}</div>}
+            {i.store_email && <div className="flex items-center gap-2 text-muted-foreground"><Mail className="size-4" /> {i.store_email}</div>}
+            <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><span>{i.email_status ?? "Chưa gửi mail"}</span><SendMailButton id={i.id} /></div>
             <div className="flex items-center gap-2 text-muted-foreground"><CalendarDays className="size-4" /> Ngày thực hiện: {fmtDate(i.inspection_date)}</div>
             <div className="flex items-center gap-2 text-muted-foreground"><User className="size-4" /> {i.inspector_msnv} – {i.inspector_name}</div>
           </div>

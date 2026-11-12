@@ -10,6 +10,8 @@ export type InspectionFull = {
   store_rep_name: string | null; signature_inspector: string | null; signature_store: string | null;
   approved_by: string | null; approved_at: string | null; approval_note: string | null; store_id: string; inspector_id: string;
   plan_id: string | null;
+  store_email?: string | null; store_phone?: string | null;
+  email_status?: string | null; emailed_at?: string | null;
 };
 export type ItemRow = {
   id: number; item_key: string; section_title: string; item_text: string; result: ItemResult | null; note: string | null; proposal: string | null;
@@ -21,10 +23,12 @@ export type PhotoRow = { id: string; item_key: string; path: string; caption: st
 export async function loadInspection(supabase: SupabaseClient, id: string) {
   const { data: insp } = await supabase.from("v_inspections").select("*").eq("id", id).maybeSingle();
   if (!insp) return null;
-  const [{ data: items }, { data: photos }, approver] = await Promise.all([
+  const [{ data: items }, { data: photos }, approver, { data: contact }, { data: mail }] = await Promise.all([
     supabase.from("inspection_items").select("*").eq("inspection_id", id).order("sort"),
     supabase.from("inspection_photos").select("id, item_key, path, caption, phase, taken_at, msnv").eq("inspection_id", id).order("taken_at"),
     insp.approved_by ? supabase.from("profiles").select("full_name, msnv").eq("id", insp.approved_by).maybeSingle() : Promise.resolve({ data: null }),
+    supabase.from("stores").select("email, phone").eq("id", insp.store_id).maybeSingle(),
+    supabase.from("inspections").select("email_status, emailed_at").eq("id", id).maybeSingle(),
   ]);
   const paths = [...(photos ?? []).map((p) => p.path), insp.signature_inspector, insp.signature_store].filter(Boolean) as string[];
   const urls = new Map<string, string>();
@@ -33,7 +37,7 @@ export async function loadInspection(supabase: SupabaseClient, id: string) {
     data?.forEach((x) => x.path && x.signedUrl && urls.set(x.path, x.signedUrl));
   }
   return {
-    inspection: insp as InspectionFull,
+    inspection: { ...(insp as InspectionFull), store_email: contact?.email ?? null, store_phone: contact?.phone ?? null, email_status: mail?.email_status ?? null, emailed_at: mail?.emailed_at ?? null } as InspectionFull,
     items: (items ?? []) as ItemRow[],
     photos: ((photos ?? []) as PhotoRow[]).map((p) => ({ ...p, url: urls.get(p.path) })),
     signatureUrls: { inspector: insp.signature_inspector ? urls.get(insp.signature_inspector) : undefined, store: insp.signature_store ? urls.get(insp.signature_store) : undefined },

@@ -33,4 +33,5 @@ export type TemplateSection = {
   items: { id: number; code: string; text: string }[];
 };
 
-export type StoreLite = { id: string; code: string; name: string; address: string | null; open_date: string | null };
+export type StoreLite = { id: string; code: string; name: string; address: string | null; open_date: string | null; province?: string | null; email?: string | null; manager_name?: string | null };
+export const STORE_COLS = "id, code, name, address, open_date, province, email, manager_name";

@@ -45,7 +45,7 @@ export default async function NewInspectionPage({ searchParams }: { searchParams
   const supabase = await createClient();
   const [sections, storeRes, planRes] = await Promise.all([
     loadTemplate(supabase, type),
-    sp.store ? supabase.from("stores").select("id, code, name, address, open_date").eq("id", sp.store).maybeSingle() : Promise.resolve({ data: null }),
+    sp.store ? supabase.from("stores").select("id, code, name, address, open_date, province, email, manager_name").eq("id", sp.store).maybeSingle() : Promise.resolve({ data: null }),
     sp.plan ? supabase.from("inspection_plans").select("id, name").eq("id", sp.plan).maybeSingle() : Promise.resolve({ data: null }),
   ]);
 

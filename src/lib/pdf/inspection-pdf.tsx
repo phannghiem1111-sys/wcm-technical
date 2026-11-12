@@ -79,6 +79,7 @@ export function InspectionPdf({ i, items, photos, images, sig, approver }: {
           <Text style={s.infoCell}><Text style={s.bold}>Mã cửa hàng: </Text>{i.store_code}</Text>
           <Text style={s.infoCell}><Text style={s.bold}>Tên cửa hàng: </Text>{i.store_name}</Text>
           <Text style={{ ...s.infoCell, width: "100%" }}><Text style={s.bold}>Địa chỉ: </Text>{i.store_address ?? ""}</Text>
+          <Text style={{ ...s.infoCell, width: "100%" }}><Text style={s.bold}>Email cửa hàng: </Text>{i.store_email ?? ""}</Text>
           <Text style={s.infoCell}><Text style={s.bold}>Khu vực: </Text>{[i.region_name, i.province].filter(Boolean).join(" – ")}</Text>
           <Text style={s.infoCell}><Text style={s.bold}>Ngày thực hiện: </Text>{d(i.inspection_date)}</Text>
           <Text style={s.infoCell}><Text style={s.bold}>Nhân viên: </Text>{i.inspector_msnv} – {i.inspector_name}</Text>

@@ -16,6 +16,7 @@ import { BAD_RESULTS, FORM_META, RESULT_OPTIONS, STORAGE_BUCKET, type FormType, 
 import { cn } from "@/lib/utils";
 import { PhotoField } from "./photo-field";
 import { StorePicker } from "./store-picker";
+import { sendInspectionEmail } from "@/lib/send-email-client";
 import type { ItemDraft, PhotoDraft, StoreLite, TemplateSection } from "./types";
 
 type Props = {
@@ -236,6 +237,13 @@ export function InspectionForm({ formType, sections, inspector, initialStore, pl
       if (error) throw error;
       localStorage.removeItem(draftKey);
       toast.success("Đã lưu biên bản thành công");
+      // Tự động gửi PDF về email cửa hàng + nhân viên (chạy nền, không chặn việc chuyển trang)
+      toast.promise(sendInspectionEmail(String(data)).then((r) => { if (!r.ok) throw new Error(r.error); return r; }), {
+        loading: "Đang gửi báo cáo qua email...",
+        success: (r) => `Đã gửi báo cáo tới: ${r.to?.join(", ")}`,
+        error: (e) => `Biên bản đã lưu, nhưng chưa gửi được mail: ${e instanceof Error ? e.message : "lỗi"}`,
+        duration: 8000,
+      });
       router.replace(`/inspections/${data}`);
       router.refresh();
     } catch (e) {
