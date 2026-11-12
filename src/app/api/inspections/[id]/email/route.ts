@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { renderInspectionPdf } from "@/lib/pdf/render";
-import { mailConfigured, sendMail } from "@/lib/mailer";
+import { mailConfigured, sendMail, senderAddress } from "@/lib/mailer";
 import { FORM_META } from "@/lib/constants";
 
 export const runtime = "nodejs";
@@ -16,7 +16,7 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
   const supabase = await createClient();
   const { data: claims } = await supabase.auth.getClaims();
   if (!claims?.claims) return Response.json({ ok: false, error: "Chưa đăng nhập" }, { status: 401 });
-  if (!mailConfigured()) return Response.json({ ok: false, error: "Hệ thống chưa cấu hình gửi mail (RESEND_API_KEY)" }, { status: 503 });
+  if (!mailConfigured()) return Response.json({ ok: false, error: "Hệ thống chưa cấu hình gửi mail (GMAIL_USER, GMAIL_APP_PASSWORD)" }, { status: 503 });
 
   const out = await renderInspectionPdf(supabase, id);
   if (!out) return Response.json({ ok: false, error: "Không tìm thấy biên bản" }, { status: 404 });
@@ -27,7 +27,10 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     admin.from("stores").select("email").eq("id", i.store_id).maybeSingle(),
     admin.from("profiles").select("contact_email").eq("id", i.inspector_id).maybeSingle(),
   ]);
-  const to = Array.from(new Set([store?.email, inspector?.contact_email].filter(isEmail).map((e) => e.trim().toLowerCase())));
+  // Người nhận (To): cửa hàng. Bản sao ẩn (BCC): nhân viên lập biên bản và tài khoản gửi.
+  const storeMail = isEmail(store?.email) ? store.email.trim().toLowerCase() : null;
+  const bcc = Array.from(new Set([inspector?.contact_email, senderAddress()].filter(isEmail).map((e) => e.trim().toLowerCase()))).filter((e) => e !== storeMail);
+  const to = storeMail ? [storeMail] : bcc.slice(0, 1);
   if (!to.length) {
     await admin.from("inspections").update({ email_status: "Không có email người nhận" }).eq("id", id);
     return Response.json({ ok: false, error: "Cửa hàng và nhân viên chưa có email" }, { status: 422 });
@@ -43,8 +46,8 @@ export async function POST(_req: Request, { params }: { params: Promise<{ id: st
     <p>Chi tiết xem file PDF đính kèm.</p>
     <p style="color:#888;font-size:12px">Email tự động từ hệ thống WCM TECHNICAL.</p></div>`;
 
-  const r = await sendMail({ to, subject, html, attachments: [{ filename: `${i.code}_${i.store_code}.pdf`, content: out.buffer }] });
-  await admin.from("inspections").update(r.ok ? { emailed_at: new Date().toISOString(), email_status: `Đã gửi: ${to.join(", ")}` } : { email_status: `Lỗi: ${r.error}` }).eq("id", id);
+  const r = await sendMail({ to, bcc: storeMail ? bcc : [], subject, html, attachments: [{ filename: `${i.code}_${i.store_code}.pdf`, content: out.buffer }] });
+  await admin.from("inspections").update(r.ok ? { emailed_at: new Date().toISOString(), email_status: `Đã gửi: ${to.join(", ")}${storeMail && bcc.length ? ` (BCC: ${bcc.join(", ")})` : ""}` } : { email_status: `Lỗi: ${r.error}` }).eq("id", id);
   if (!r.ok) return Response.json({ ok: false, error: r.error }, { status: 502 });
-  return Response.json({ ok: true, to });
+  return Response.json({ ok: true, to: storeMail ? [...to, ...bcc.map((b) => `${b} (ẩn)`)] : to });
 }
