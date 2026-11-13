@@ -5,7 +5,7 @@ import { PageHeader } from "@/components/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DeleteMaterial, ImportForm } from "./import-form";
+import { DeleteMaterial, ImportForm, SheetSync } from "./import-form";
 
 export const metadata = { title: "Danh mục vật tư" };
 
@@ -21,6 +21,13 @@ export default async function MaterialsPage({ searchParams }: { searchParams: Pr
   return (
     <>
       <PageHeader title="Danh mục vật tư" desc={`${count ?? 0} vật tư · dùng để gợi ý khi lập biên bản vật tư`} />
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>Đồng bộ từ Google Sheet</CardTitle>
+          <CardDescription>Sheet cần có cột Mã, Tên vật tư, ĐVT và được chia sẻ &quot;Bất kỳ ai có đường liên kết&quot;. Link có #gid=… thì lấy đúng trang tính đó. Trùng mã sẽ cập nhật.</CardDescription>
+        </CardHeader>
+        <CardContent><SheetSync defaultUrl={process.env.MATERIALS_SHEET_URL ?? ""} /></CardContent>
+      </Card>
       <Card className="mb-4">
         <CardHeader><CardTitle>Nhập / cập nhật từ Excel</CardTitle><CardDescription>Copy 3 cột Mã, Tên, ĐVT trong Excel rồi dán vào ô dưới. Trùng mã sẽ được cập nhật.</CardDescription></CardHeader>
         <CardContent><ImportForm /></CardContent>
