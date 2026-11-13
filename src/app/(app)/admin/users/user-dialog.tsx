@@ -61,7 +61,7 @@ export function UserActions({ user }: { user: UserRow }) {
   const [pw, setPw] = useState<string | null>(null);
   return (
     <>
-      <Button size="icon" variant="ghost" disabled={pending} aria-label="Cấp lại mật khẩu" onClick={() => { if (confirm(`Cấp lại mật khẩu cho ${user.msnv}?`)) start(async () => { const r = await resetPassword(user.msnv); if (r.error) toast.error(r.error); else setPw(r.password!); }); }}><KeyRound /></Button>
+      <Button size="icon" variant="ghost" disabled={pending} aria-label="Cấp lại mật khẩu" onClick={() => { if (confirm(`Cấp lại mật khẩu cho ${user.msnv}?`)) start(async () => { const r = await resetPassword(user.msnv); if (r.error) toast.error(r.error); else { setPw(r.password!); toast[r.emailed ? "success" : "message"](r.emailed ? `Đã gửi mật khẩu về ${r.emailed}` : "Chưa gửi được mail, hãy gửi mật khẩu cho nhân viên"); } }); }}><KeyRound /></Button>
       <Button size="icon" variant="ghost" disabled={pending} aria-label={user.status === "active" ? "Khóa" : "Mở khóa"} className={user.status === "active" ? "text-red-600" : "text-emerald-600"}
         onClick={() => start(async () => { const r = await setUserStatus(user.id, user.status === "active" ? "locked" : "active"); if (r.error) toast.error(r.error); else toast.success(user.status === "active" ? "Đã khóa tài khoản" : "Đã mở khóa"); })}>
         {user.status === "active" ? <Lock /> : <Unlock />}

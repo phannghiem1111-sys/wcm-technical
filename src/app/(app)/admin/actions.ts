@@ -1,4 +1,5 @@
 "use server";
+import { mailConfigured, sendMail } from "@/lib/mailer";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -69,7 +70,7 @@ export async function setUserStatus(id: string, status: "active" | "locked") {
 export async function resetPassword(msnv: string, requestId?: number) {
   const me = await requireProfile(["admin", "doi_truong"]);
   const admin = createAdminClient();
-  const { data: target } = await admin.from("profiles").select("id, team_lead_id, role").eq("msnv", msnv.toUpperCase()).maybeSingle();
+  const { data: target } = await admin.from("profiles").select("id, team_lead_id, role, full_name, contact_email").eq("msnv", msnv.toUpperCase()).maybeSingle();
   if (!target) return { error: "Không tìm thấy MSNV" };
   if (me.role === "doi_truong" && target.team_lead_id !== me.id) return { error: "Chỉ cấp lại mật khẩu cho nhân viên trong đội" };
   const password = genPassword();
@@ -78,7 +79,17 @@ export async function resetPassword(msnv: string, requestId?: number) {
   await admin.from("profiles").update({ must_change_password: true }).eq("id", target.id);
   if (requestId) await admin.from("password_reset_requests").update({ status: "done", handled_by: me.id, handled_at: new Date().toISOString() }).eq("id", requestId);
   revalidatePath("/admin/reset-requests");
-  return { ok: true, password };
+  // Tự gửi mật khẩu mới về email của chính nhân viên đó
+  let emailed: string | null = null;
+  if (target.contact_email && mailConfigured()) {
+    const r = await sendMail({
+      to: [target.contact_email],
+      subject: "[WCM TECHNICAL] Mật khẩu mới của bạn",
+      html: `<p>Chào ${target.full_name ?? ""},</p><p>Mật khẩu mới đăng nhập WCM TECHNICAL (MSNV <b>${msnv.toUpperCase()}</b>): <b>${password}</b></p><p>Bạn cũng có thể vào trang đăng nhập, chọn "Lần đầu đăng nhập? Tự đặt mật khẩu" để tự đặt mật khẩu 6 số.</p>`,
+    });
+    if (r.ok) emailed = target.contact_email;
+  }
+  return { ok: true, password, emailed };
 }
 
 export async function rejectResetRequest(id: number) {
