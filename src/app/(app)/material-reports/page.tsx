@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ChevronRight, ExternalLink, Plus, Search } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { MR_APP_URL, MR_CATEGORIES, MR_COLOR, MR_PROPOSALS } from "@/lib/material/constants";
+import { MR_CATEGORIES, MR_COLOR, MR_PROPOSALS } from "@/lib/material/constants";
 import { fmtDateTime, cn } from "@/lib/utils";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ export default async function MaterialReportsPage({ searchParams }: { searchPara
 
   return (
     <>
-      <PageHeader title="Biên bản vật tư" desc={`Vật tư thay thế tại cửa hàng · ${total} biên bản`} actions={<><Button variant="outline" asChild><a href={MR_APP_URL} target="_blank" rel="noopener"><ExternalLink /> App Vật tư MN</a></Button><Button asChild><Link href="/material-reports/new"><Plus /> Lập biên bản</Link></Button></>} />
+      <PageHeader title="Biên bản vật tư" desc={`Vật tư thay thế tại cửa hàng · ${total} biên bản`} actions={<><Button variant="outline" asChild><Link href="/vat-tu"><ExternalLink /> App Vật tư MN</Link></Button><Button asChild><Link href="/material-reports/new"><Plus /> Lập biên bản</Link></Button></>} />
       <Card className="mb-4 p-3">
         <form className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
           <div className="relative lg:col-span-2">
