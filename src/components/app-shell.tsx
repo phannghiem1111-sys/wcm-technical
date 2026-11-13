@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { PanelLeftClose, PanelLeftOpen, LayoutDashboard, FilePlus2, FileText, CalendarCheck, Store, Users, Settings, UserCircle, LogOut, History, KeyRound, Plus, Package } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, LayoutDashboard, FilePlus2, FileText, CalendarCheck, Store, Users, Settings, UserCircle, LogOut, History, KeyRound, Plus, Package, ClipboardList, ChevronDown } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ROLE_LABEL, type AppRole } from "@/lib/constants";
@@ -10,10 +10,13 @@ import { logout } from "@/app/login/actions";
 
 type NavItem = { href: string; label: string; icon: React.ComponentType<{ className?: string }>; roles?: AppRole[] };
 
-const NAV: NavItem[] = [
+/** Nhóm "Form Checklist": dữ liệu app checklist */
+const CHECKLIST_NAV: NavItem[] = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/inspections/new", label: "Tạo phiếu kiểm tra", icon: FilePlus2 },
   { href: "/inspections", label: "Kho biên bản", icon: FileText },
+];
+const NAV: NavItem[] = [
   { href: "/vat-tu", label: "App Vật tư MN", icon: Package },
   { href: "/plans", label: "Kế hoạch định kỳ", icon: CalendarCheck },
   { href: "/stores", label: "Cửa hàng", icon: Store },
@@ -56,6 +59,15 @@ export function AppShell({ children, user }: { children: React.ReactNode; user: 
         </div>
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Nghiệp vụ</p>
+          <details open className="group">
+            <summary className="flex cursor-pointer list-none items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-white hover:bg-white/5 [&::-webkit-details-marker]:hidden">
+              <ClipboardList className="size-5" /> <span className="flex-1">Form Checklist</span>
+              <ChevronDown className="size-4 transition-transform group-open:rotate-180" />
+            </summary>
+            <div className="ml-4 space-y-1 border-l border-white/10 pl-2">
+              {CHECKLIST_NAV.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
+            </div>
+          </details>
           {NAV.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
           {adminItems.length > 0 && <p className="px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Quản trị</p>}
           {adminItems.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
