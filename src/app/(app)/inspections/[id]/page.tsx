@@ -23,8 +23,6 @@ export default async function InspectionDetail({ params }: { params: Promise<{ i
   const { inspection: i, items, photos, signatureUrls, approver } = data;
   const meta = FORM_META[i.form_type];
   const isMaint = i.form_type === "maintenance";
-  const { data: canManage } = await supabase.rpc("can_manage_store", { s_id: i.store_id });
-  const canReview = Boolean(canManage) && i.status === "submitted";
 
   return (
     <div className="space-y-4">
@@ -117,7 +115,7 @@ export default async function InspectionDetail({ params }: { params: Promise<{ i
               {i.approval_note && <div className="mt-1">“{i.approval_note}”</div>}
             </div>
           )}
-          <ReviewActions id={i.id} canReview={canReview} canDelete={profile.role === "admin"} />
+          <ReviewActions id={i.id} canDelete={profile.role === "admin"} />
         </CardContent>
       </Card>
     </div>

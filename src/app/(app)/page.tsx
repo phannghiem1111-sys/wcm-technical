@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardCheck, CalendarClock, Wrench, FileText, Percent, CalendarDays, AlertTriangle, Siren, Hourglass, ChevronRight } from "lucide-react";
+import { ClipboardCheck, CalendarClock, Wrench, FileText, Percent, CalendarDays, AlertTriangle, Siren, ChevronRight } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { FORM_META, ROLE_LABEL, type FormType } from "@/lib/constants";
@@ -75,13 +75,12 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </div>
 
       {/* KPI */}
-      <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-5">
         <Kpi icon={FileText} label="Tổng biên bản" value={s.total} tone="text-zinc-900" />
         <Kpi icon={Percent} label="Tỷ lệ đạt TB" value={`${Number(s.avg_score).toFixed(1)}%`} tone="text-emerald-600" />
         <Kpi icon={CalendarDays} label="Trong tháng này" value={s.this_month} tone="text-blue-600" />
         <Kpi icon={AlertTriangle} label="Lỗi phát hiện" value={s.defects} tone="text-red-600" />
         <Kpi icon={Siren} label="Sửa chữa khẩn cấp" value={s.urgent} tone="text-fuchsia-700" />
-        <Kpi icon={Hourglass} label="Chờ duyệt" value={s.pending} tone="text-amber-600" href="/inspections?status=submitted" />
       </div>
 
       {/* Hiệu suất theo phân hệ */}

@@ -46,7 +46,7 @@ export const RESULT_LABEL: Record<ItemResult, string> = {
 export const BAD_RESULTS: ItemResult[] = ["fail", "monitor", "urgent", "maintenance", "broken"];
 
 export const COMPLETION_LABEL: Record<string, string> = { done: "Hoàn thành", partial: "Hoàn thành một phần", not_done: "Chưa hoàn thành" };
-export const STATUS_LABEL: Record<string, string> = { draft: "Nháp", submitted: "Chờ duyệt", approved: "Đã duyệt", rejected: "Trả lại" };
+export const STATUS_LABEL: Record<string, string> = { draft: "Nháp", submitted: "Hoàn tất", approved: "Hoàn tất", rejected: "Trả lại" };
 export const PERIOD_LABEL: Record<string, string> = { month: "Tháng", quarter: "Quý", year: "Năm", campaign: "Chiến dịch" };
 
 export const STORAGE_BUCKET = "inspection-files";
