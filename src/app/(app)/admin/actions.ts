@@ -46,7 +46,7 @@ export async function saveUser(_: ActionState, fd: FormData): Promise<ActionStat
     return { ok: "Đã cập nhật tài khoản" };
   }
   const password = String(fd.get("password") ?? "").trim() || genPassword();
-  if (password.length < 8) return { error: "Mật khẩu tối thiểu 8 ký tự" };
+  if (password.length < 6) return { error: "Mật khẩu tối thiểu 6 ký tự" };
   const { data: created, error } = await admin.auth.admin.createUser({ email: msnvToEmail(msnv), password, email_confirm: true, user_metadata: { msnv } });
   if (error || !created.user) return { error: error?.message.includes("already") ? "MSNV đã tồn tại" : error?.message };
   const { error: pErr } = await admin.from("profiles").insert({ id: created.user.id, ...profile, must_change_password: true });

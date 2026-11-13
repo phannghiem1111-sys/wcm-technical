@@ -10,7 +10,7 @@ export default async function ChangePasswordPage() {
   if (!p.must_change_password) redirect("/");
   return (
     <AuthShell title="Đặt mật khẩu mới">
-      <p className="-mt-3 text-sm text-muted-foreground">Xin chào <b>{p.full_name}</b> ({p.msnv}). Đây là lần đăng nhập đầu tiên, hãy đặt mật khẩu của riêng bạn (tối thiểu 8 ký tự). Trình duyệt sẽ ghi nhớ để lần sau tự điền.</p>
+      <p className="-mt-3 text-sm text-muted-foreground">Xin chào <b>{p.full_name}</b> ({p.msnv}). Đây là lần đăng nhập đầu tiên, hãy đặt mật khẩu của riêng bạn (gồm 6 chữ số). Trình duyệt sẽ ghi nhớ để lần sau tự điền.</p>
       <FirstPasswordForm />
     </AuthShell>
   );

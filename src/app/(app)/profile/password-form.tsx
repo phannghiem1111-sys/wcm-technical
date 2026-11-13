@@ -18,7 +18,7 @@ export function PasswordForm() {
   return (
     <form ref={ref} action={action} className="space-y-3">
       <div className="space-y-1.5"><Label>Mật khẩu hiện tại</Label><Input type="password" name="current" required autoComplete="current-password" /></div>
-      <div className="space-y-1.5"><Label>Mật khẩu mới (≥ 8 ký tự)</Label><Input type="password" name="next" required minLength={8} autoComplete="new-password" /></div>
+      <div className="space-y-1.5"><Label>Mật khẩu mới (6 chữ số)</Label><Input type="password" name="next" required inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="new-password" /></div>
       <div className="space-y-1.5"><Label>Nhập lại mật khẩu mới</Label><Input type="password" name="confirm" required minLength={8} autoComplete="new-password" /></div>
       <Button className="w-full" disabled={pending}>{pending && <Loader2 className="animate-spin" />} Đổi mật khẩu</Button>
     </form>
