@@ -38,11 +38,11 @@ export default async function NewInspectionPage({ searchParams }: { searchParams
               </Link>
             );
           })}
-          <Link href="/material-reports/new" className="group flex items-center gap-4 rounded-2xl border bg-white p-5 shadow-sm transition-all active:scale-[0.99] md:flex-col md:items-start">
+          <Link href="/vat-tu" className="group flex items-center gap-4 rounded-2xl border bg-white p-5 shadow-sm transition-all active:scale-[0.99] md:flex-col md:items-start">
             <div className={`flex size-14 items-center justify-center rounded-2xl text-white ${MR_COLOR}`}><Package className="size-7" /></div>
             <div className="flex-1">
               <div className="text-lg font-black">Biên bản vật tư</div>
-              <div className="text-sm text-muted-foreground">Vật tư thay thế, đề xuất xuất kho / mua mới / bảo hành</div>
+              <div className="text-sm text-muted-foreground">Mở App Vật tư MN: lập biên bản, tồn kho, điều phối</div>
             </div>
             <ChevronRight className="size-5 text-muted-foreground md:hidden" />
           </Link>

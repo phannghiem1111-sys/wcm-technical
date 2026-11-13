@@ -73,15 +73,11 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             </Link>
           );
         })}
-        <Link href="/material-reports/new" className={cn("flex flex-col items-center gap-1.5 rounded-2xl p-3 text-center text-white shadow-sm active:scale-95 sm:flex-row sm:p-4 sm:text-left", MR_COLOR)}>
+        <Link href="/vat-tu" className={cn("flex flex-col items-center gap-1.5 rounded-2xl p-3 text-center text-white shadow-sm active:scale-95 sm:flex-row sm:p-4 sm:text-left", MR_COLOR)}>
           <Package className="size-7 shrink-0" />
           <span className="text-xs font-bold leading-tight sm:text-sm">BBVT</span>
         </Link>
       </div>
-      <Link href="/vat-tu" className="flex items-center justify-between gap-2 rounded-2xl border bg-white px-4 py-3 text-sm font-bold shadow-sm active:bg-zinc-50">
-        <span className="flex items-center gap-2"><Package className="size-5 text-emerald-600" /> App Vật tư MN · tra tồn kho, điều phối, xác nhận chuyển</span>
-        <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
-      </Link>
 
       {/* KPI */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-5">
