@@ -15,7 +15,7 @@ import { PhotoField } from "@/components/inspection/photo-field";
 import { StorePicker } from "@/components/inspection/store-picker";
 import type { PhotoDraft, StoreLite } from "@/components/inspection/types";
 import { STORAGE_BUCKET } from "@/lib/constants";
-import { MR_CATEGORIES, MR_PROPOSALS, MR_TEMPLATES, mrSubject } from "@/lib/material/constants";
+import { MR_CATEGORIES, MR_PROPOSALS, MR_TEMPLATES, mrSubject, norm } from "@/lib/material/constants";
 import { cn } from "@/lib/utils";
 
 type Row = { key: string; code: string; name: string; unit: string; qty: string };
@@ -231,39 +231,48 @@ function TplField({ label, value, onChange, tpls, onPick }: { label: string; val
   );
 }
 
-/** Ô tìm vật tư trong danh mục (theo mã hoặc tên). */
+/** Danh mục vật tư tải 1 lần khi mở form, lọc tại máy (không dấu). */
+let catalog: Promise<(Material & { _n: string })[]> | null = null;
+function loadCatalog() {
+  if (!catalog) {
+    catalog = (async () => {
+      const all: Material[] = [];
+      for (let from = 0; from < 20000; from += 1000) {
+        const { data, error } = await createClient().from("materials").select("code, name, unit").eq("is_active", true).order("name").range(from, from + 999);
+        if (error) { catalog = null; throw error; }
+        all.push(...((data as Material[]) ?? []));
+        if (!data || data.length < 1000) break;
+      }
+      return all.map((m) => ({ ...m, _n: norm(`${m.name} ${m.code}`) }));
+    })();
+  }
+  return catalog;
+}
+
+/** Ô chọn vật tư: bấm vào là hiện danh sách, gõ tên hoặc mã để lọc. */
 function MaterialSearch({ value, onText, onPick }: { value: string; onText: (v: string) => void; onPick: (m: Material) => void }) {
-  const [res, setRes] = useState<Material[]>([]);
+  const [list, setList] = useState<(Material & { _n: string })[]>([]);
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
 
-  useEffect(() => {
-    const term = q.trim().replace(/[%,()]/g, "");
-    if (term.length < 2) return;
-    const t = setTimeout(async () => {
-      const words = term.split(/\s+/).filter(Boolean);
-      let query = createClient().from("materials").select("code, name, unit").eq("is_active", true);
-      if (words.length === 1) query = query.or(`code.ilike.${words[0]}%,name.ilike.%${words[0]}%`);
-      else words.forEach((w) => { query = query.ilike("name", `%${w}%`); });
-      const { data } = await query.order("name").limit(20);
-      setRes((data as Material[]) ?? []);
-    }, 250);
-    return () => clearTimeout(t);
-  }, [q]);
+  useEffect(() => { loadCatalog().then(setList).catch(() => setList([])); }, []);
 
-  const show = open && q.trim().length >= 2 && res.length > 0;
+  const words = norm(q).split(/\s+/).filter(Boolean);
+  const res = (words.length ? list.filter((m) => words.every((w) => m._n.includes(w))) : list).slice(0, 50);
+
   return (
     <div className="relative">
       <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-      <Input value={value} onChange={(e) => { onText(e.target.value); setQ(e.target.value); setOpen(true); }} onFocus={() => setOpen(true)} onBlur={() => setTimeout(() => setOpen(false), 200)} placeholder="Tên vật tư (vd: băng keo)…" className="pl-9" />
-      {show && (
-        <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-xl border bg-white shadow-xl">
+      <Input value={value} onChange={(e) => { onText(e.target.value); setQ(e.target.value); setOpen(true); }} onFocus={() => { setQ(""); setOpen(true); }} onBlur={() => setTimeout(() => setOpen(false), 200)} placeholder="Bấm để chọn vật tư, hoặc gõ tên / mã…" className="pl-9" />
+      {open && (
+        <div className="absolute z-30 mt-1 max-h-72 w-full overflow-y-auto rounded-xl border bg-white shadow-xl">
           {res.map((m) => (
-            <button key={m.code} type="button" onClick={() => { onPick(m); setOpen(false); setQ(""); setRes([]); }} className="block w-full border-b px-3 py-2 text-left last:border-0 active:bg-zinc-100">
+            <button key={m.code} type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => { onPick(m); setOpen(false); setQ(""); }} className="block w-full border-b px-3 py-2 text-left last:border-0 hover:bg-zinc-50 active:bg-zinc-100">
               <div className="text-sm font-semibold">{m.name}</div>
               <div className="text-xs text-muted-foreground">{m.code}{m.unit ? ` · ${m.unit}` : ""}</div>
             </button>
           ))}
+          {res.length === 0 && <div className="px-3 py-2.5 text-xs text-muted-foreground">{list.length ? "Không có trong danh mục, nhập tay mã và ĐVT bên dưới." : "Danh mục vật tư trống."}</div>}
         </div>
       )}
     </div>
