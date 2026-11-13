@@ -2,6 +2,8 @@
 export const MR_CATEGORIES = ["Bảng hiệu", "Điện", "Điện lạnh", "PCCC", "Cửa cuốn", "Cửa kính", "Mái nhà", "WC", "Trần", "Khác"];
 export const MR_PROPOSALS = ["Xuất kho", "Mua mới", "Bảo hành"];
 export const MR_COLOR = "bg-emerald-600";
+/** App Biên Bản Vật Tư MN (tồn kho, điều phối, xác nhận chuyển) */
+export const MR_APP_URL = "https://phannghiem1111-sys.github.io/bienban-vt/mn/";
 
 export const MR_TEMPLATES: { incident: Record<string, string[]>; solution: Record<string, string[]> } = {
   incident: {

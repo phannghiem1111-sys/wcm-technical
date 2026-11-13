@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { PanelLeftClose, PanelLeftOpen, LayoutDashboard, FilePlus2, FileText, CalendarCheck, Store, Users, Settings, UserCircle, LogOut, History, KeyRound, Plus, Package, Boxes } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, LayoutDashboard, FilePlus2, FileText, CalendarCheck, Store, Users, Settings, UserCircle, LogOut, History, KeyRound, Plus, Package, Boxes, ExternalLink } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ROLE_LABEL, type AppRole } from "@/lib/constants";
 import { logout } from "@/app/login/actions";
+import { MR_APP_URL } from "@/lib/material/constants";
 
 type NavItem = { href: string; label: string; icon: React.ComponentType<{ className?: string }>; roles?: AppRole[] };
 
@@ -58,6 +59,9 @@ export function AppShell({ children, user }: { children: React.ReactNode; user: 
         <nav className="flex-1 space-y-1 overflow-y-auto p-3">
           <p className="px-3 pb-1 pt-2 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Nghiệp vụ</p>
           {NAV.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
+          <a href={MR_APP_URL} target="_blank" rel="noopener" className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition-colors hover:bg-white/5 hover:text-white">
+            <ExternalLink className="size-5" /> App Vật tư MN
+          </a>
           {adminItems.length > 0 && <p className="px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Quản trị</p>}
           {adminItems.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
         </nav>
