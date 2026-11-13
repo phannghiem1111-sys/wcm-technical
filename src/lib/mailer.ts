@@ -30,7 +30,7 @@ export async function sendMail(opts: Mail) {
       });
       return { ok: true as const };
     } catch (e) {
-      return { ok: false as const, error: `Gmail: ${e instanceof Error ? e.message : String(e)}`.slice(0, 250) };
+      return { ok: false as const, error: `Gmail: ${e instanceof Error ? e.message : String(e)}`.slice(0, 160) + ` [tài khoản=${user.slice(0, 3)}***${user.slice(user.indexOf("@"))}, mật khẩu=${pass.length} ký tự]` };
     }
   }
 
