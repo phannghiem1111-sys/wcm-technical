@@ -13,7 +13,7 @@ export default async function MaterialsPage({ searchParams }: { searchParams: Pr
   const { q } = await searchParams;
   await requireProfile(["admin"]);
   const supabase = await createClient();
-  let query = supabase.from("materials").select("code, name, unit", { count: "exact" });
+  let query = supabase.from("materials").select("code, name, unit", { count: "exact" }).eq("is_active", true);
   if (q?.trim()) { const t = q.trim().replace(/[%,()]/g, ""); query = query.or(`code.ilike.${t}%,name.ilike.%${t}%`); }
   const { data, count } = await query.order("name").limit(200);
   const rows = (data ?? []) as { code: string; name: string; unit: string | null }[];

@@ -73,13 +73,16 @@ export async function syncMaterialsFromSheet(_: unknown, fd: FormData): Promise<
   }
   const rows = parseCsv(text).filter((r) => r.some(Boolean));
   if (!rows.length) return { error: "Sheet trống" };
-  // Tìm dòng tiêu đề và cột Mã / Tên / ĐVT trong 10 dòng đầu; không có thì lấy 3 cột đầu
+  // Tìm dòng tiêu đề và cột Mã / Tên / ĐVT trong 30 dòng đầu (sheet tồn kho thường có vài dòng tiêu đề phía trên)
   let hi = -1, ci = 0, ni = 1, ui = 2;
-  for (let i = 0; i < Math.min(10, rows.length); i++) {
-    const h = rows[i].map(strip);
-    const c = h.findIndex((x) => /^ma( vat tu| vt)?$|^mvt$|^ma vat tu|^code/.test(x));
-    const n = h.findIndex((x) => /^ten( vat tu| vt)?$|^ten vat tu|^name/.test(x));
-    if (c >= 0 && n >= 0) { hi = i; ci = c; ni = n; ui = h.findIndex((x) => /^dvt$|^don vi|^dv tinh|^unit/.test(x)); break; }
+  const isCode = (x: string) => /^(ma|mvt|code|sku)\b/.test(x) && !/(kho|cua hang|ch|nv|nhan vien|ncc|nha cung cap|du an)$/.test(x);
+  const isName = (x: string) => /^(ten|name|dien giai|mo ta)\b/.test(x) && !/(kho|cua hang|nv|nhan vien|ncc|nha cung cap)$/.test(x);
+  const isUnit = (x: string) => /^(dvt|don vi|dv tinh|unit)\b/.test(x);
+  for (let i = 0; i < Math.min(30, rows.length); i++) {
+    const h = rows[i].map((x) => strip(x).replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim());
+    const c = h.findIndex(isCode);
+    const n = h.findIndex(isName);
+    if (c >= 0 && n >= 0) { hi = i; ci = c; ni = n; ui = h.findIndex(isUnit); break; }
   }
   const now = new Date().toISOString();
   const map = new Map<string, { code: string; name: string; unit: string | null; is_active: boolean; updated_at: string }>();
@@ -94,8 +97,12 @@ export async function syncMaterialsFromSheet(_: unknown, fd: FormData): Promise<
     const { error } = await supabase.from("materials").upsert(list.slice(i, i + 500), { onConflict: "code" });
     if (error) return { error: error.message };
   }
+  // Vật tư không còn trong sheet thì ẩn khỏi gợi ý (vẫn giữ trong biên bản cũ)
+  const { data: cur } = await supabase.from("materials").select("code").eq("is_active", true);
+  const gone = (cur ?? []).map((x) => x.code as string).filter((c) => !map.has(c));
+  for (let i = 0; i < gone.length; i += 200) await supabase.from("materials").update({ is_active: false }).in("code", gone.slice(i, i + 200));
   revalidatePath("/admin/materials");
-  return { ok: `Đã đồng bộ ${list.length} vật tư từ Google Sheet` };
+  return { ok: `Đã đồng bộ ${list.length} vật tư từ Google Sheet${gone.length ? `, ẩn ${gone.length} mã không còn trong sheet` : ""}` };
 }
 
 export async function deleteMaterial(code: string) {
