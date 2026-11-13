@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSyncExternalStore } from "react";
-import { PanelLeftClose, PanelLeftOpen, LayoutDashboard, FilePlus2, FileText, CalendarCheck, Store, Users, Settings, UserCircle, LogOut, History, KeyRound, Plus, Package, Boxes } from "lucide-react";
+import { PanelLeftClose, PanelLeftOpen, LayoutDashboard, FilePlus2, FileText, CalendarCheck, Store, Users, Settings, UserCircle, LogOut, History, KeyRound, Plus, Package } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { ROLE_LABEL, type AppRole } from "@/lib/constants";
@@ -14,8 +14,7 @@ const NAV: NavItem[] = [
   { href: "/", label: "Tổng quan", icon: LayoutDashboard },
   { href: "/inspections/new", label: "Tạo phiếu kiểm tra", icon: FilePlus2 },
   { href: "/inspections", label: "Kho biên bản", icon: FileText },
-  { href: "/material-reports", label: "Biên bản vật tư", icon: Package },
-  { href: "/vat-tu", label: "App Vật tư MN", icon: Boxes },
+  { href: "/vat-tu", label: "App Vật tư MN", icon: Package },
   { href: "/plans", label: "Kế hoạch định kỳ", icon: CalendarCheck },
   { href: "/stores", label: "Cửa hàng", icon: Store },
 ];
@@ -24,7 +23,6 @@ const ADMIN_NAV: NavItem[] = [
   { href: "/admin/reset-requests", label: "Yêu cầu cấp lại MK", icon: KeyRound, roles: ["admin", "doi_truong"] },
   { href: "/admin/login-logs", label: "Lịch sử đăng nhập", icon: History, roles: ["admin"] },
   { href: "/admin/settings", label: "Cấu hình checklist", icon: Settings, roles: ["admin"] },
-  { href: "/admin/materials", label: "Danh mục vật tư", icon: Boxes, roles: ["admin"] },
 ];
 
 // Trạng thái thu gọn thanh menu, nhớ trên thiết bị
