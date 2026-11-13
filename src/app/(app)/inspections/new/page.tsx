@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ClipboardCheck, CalendarClock, Wrench, ChevronRight } from "lucide-react";
+import { ClipboardCheck, CalendarClock, Wrench, ChevronRight, Package } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { loadTemplate } from "@/lib/templates";
 import { FORM_META, type FormType } from "@/lib/constants";
+import { MR_COLOR } from "@/lib/material/constants";
 import { PageHeader } from "@/components/page-header";
 import { InspectionFormLoader as InspectionForm } from "@/components/inspection/inspection-form-loader";
 import type { StoreLite } from "@/components/inspection/types";
@@ -22,7 +23,7 @@ export default async function NewInspectionPage({ searchParams }: { searchParams
     return (
       <>
         <PageHeader title="Tạo phiếu kiểm tra" desc="Chọn loại biên bản cần thực hiện" />
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-4">
           {TYPES.map((t) => {
             const Icon = ICONS[t];
             const m = FORM_META[t];
@@ -37,6 +38,14 @@ export default async function NewInspectionPage({ searchParams }: { searchParams
               </Link>
             );
           })}
+          <Link href="/material-reports/new" className="group flex items-center gap-4 rounded-2xl border bg-white p-5 shadow-sm transition-all active:scale-[0.99] md:flex-col md:items-start">
+            <div className={`flex size-14 items-center justify-center rounded-2xl text-white ${MR_COLOR}`}><Package className="size-7" /></div>
+            <div className="flex-1">
+              <div className="text-lg font-black">Biên bản vật tư</div>
+              <div className="text-sm text-muted-foreground">Vật tư thay thế, đề xuất xuất kho / mua mới / bảo hành</div>
+            </div>
+            <ChevronRight className="size-5 text-muted-foreground md:hidden" />
+          </Link>
         </div>
       </>
     );
