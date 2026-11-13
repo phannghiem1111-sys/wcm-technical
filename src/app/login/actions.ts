@@ -78,7 +78,7 @@ export async function firstLogin(_: FormState, formData: FormData): Promise<Form
   const pw = String(formData.get("password") ?? "");
   const confirm = String(formData.get("confirm") ?? "");
   if (!msnv) return { error: "Vui lòng nhập MSNV" };
-  if (pw.length < 8) return { error: "Mật khẩu tối thiểu 8 ký tự" };
+  if (!/^\d{6}$/.test(pw)) return { error: "Mật khẩu gồm đúng 6 chữ số" };
   if (pw !== confirm) return { error: "Hai mật khẩu không khớp" };
   if (pw === "Wcm@" + msnv) return { error: "Hãy chọn mật khẩu khác mật khẩu mặc định" };
   const problem = envProblem();

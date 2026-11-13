@@ -19,8 +19,8 @@ export function FirstPasswordForm() {
     <form action={action} className="space-y-3">
       {state?.error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2.5 text-sm font-medium text-red-700">{state.error}</div>}
       <div className="space-y-1.5"><Label htmlFor="current">Mật khẩu hiện tại (do hệ thống cấp)</Label><Input id="current" type="password" name="current" required autoComplete="current-password" className="h-12" /></div>
-      <div className="space-y-1.5"><Label htmlFor="next">Mật khẩu mới</Label><Input id="next" type="password" name="next" required minLength={8} autoComplete="new-password" className="h-12" /></div>
-      <div className="space-y-1.5"><Label htmlFor="confirm">Nhập lại mật khẩu mới</Label><Input id="confirm" type="password" name="confirm" required minLength={8} autoComplete="new-password" className="h-12" /></div>
+      <div className="space-y-1.5"><Label htmlFor="next">Mật khẩu mới (6 chữ số)</Label><Input id="next" type="password" name="next" required inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="new-password" className="h-12" /></div>
+      <div className="space-y-1.5"><Label htmlFor="confirm">Nhập lại mật khẩu mới</Label><Input id="confirm" type="password" name="confirm" required inputMode="numeric" pattern="[0-9]{6}" maxLength={6} autoComplete="new-password" className="h-12" /></div>
       <Button size="xl" className="w-full" disabled={pending}>{pending && <Loader2 className="animate-spin" />} Lưu và vào hệ thống</Button>
     </form>
   );

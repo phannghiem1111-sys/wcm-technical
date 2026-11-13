@@ -123,7 +123,7 @@ export async function changePassword(_: ActionState, fd: FormData): Promise<Acti
   const me = await requireProfile();
   const current = String(fd.get("current") ?? "");
   const next = String(fd.get("next") ?? "");
-  if (next.length < 8) return { error: "Mật khẩu mới tối thiểu 8 ký tự" };
+  if (!/^\d{6}$/.test(next)) return { error: "Mật khẩu mới gồm đúng 6 chữ số" };
   if (next === current) return { error: "Mật khẩu mới phải khác mật khẩu hiện tại" };
   if (next !== String(fd.get("confirm") ?? "")) return { error: "Xác nhận mật khẩu không khớp" };
   const supabase = await createClient();
