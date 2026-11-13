@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ClipboardCheck, CalendarClock, Wrench, FileText, Percent, CalendarDays, AlertTriangle, Siren, ChevronRight, Package } from "lucide-react";
+import { ClipboardCheck, CalendarClock, Wrench, FileText, Percent, CalendarDays, AlertTriangle, Siren, ChevronRight, Package, ExternalLink } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { FORM_META, ROLE_LABEL, type FormType } from "@/lib/constants";
@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { NativeSelect } from "@/components/ui/native-select";
 import { Button } from "@/components/ui/button";
-import { MR_COLOR } from "@/lib/material/constants";
+import { MR_APP_URL, MR_COLOR } from "@/lib/material/constants";
 import { MonthlyChart, ResultPie } from "@/components/dashboard-charts";
 import { ScoreBadge, StatusBadge } from "@/components/result-badge";
 
@@ -78,6 +78,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <span className="text-xs font-bold leading-tight sm:text-sm">BBVT</span>
         </Link>
       </div>
+      <a href={MR_APP_URL} target="_blank" rel="noopener" className="flex items-center justify-between gap-2 rounded-2xl border bg-white px-4 py-3 text-sm font-bold shadow-sm active:bg-zinc-50">
+        <span className="flex items-center gap-2"><Package className="size-5 text-emerald-600" /> App Vật tư MN · tra tồn kho, điều phối, xác nhận chuyển</span>
+        <ExternalLink className="size-4 shrink-0 text-muted-foreground" />
+      </a>
 
       {/* KPI */}
       <div className="grid grid-cols-2 gap-2 sm:gap-3 lg:grid-cols-5">
