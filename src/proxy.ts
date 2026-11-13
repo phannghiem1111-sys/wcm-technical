@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from "@/lib/supabase/env";
 
-const PUBLIC_PATHS = ["/login", "/forgot-password", "/manifest.webmanifest", "/sw.js", "/offline"];
+const PUBLIC_PATHS = ["/login", "/forgot-password", "/first-login", "/manifest.webmanifest", "/sw.js", "/offline"];
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });

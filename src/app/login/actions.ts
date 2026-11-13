@@ -71,3 +71,28 @@ export async function requestReset(_: FormState, formData: FormData): Promise<Fo
   if (!count) await admin.from("password_reset_requests").insert({ msnv, phone, note });
   return { ok: "Đã gửi yêu cầu. Đội trưởng/Quản trị sẽ cấp lại mật khẩu và liên hệ bạn." };
 }
+
+/** Lần đầu đăng nhập: nhân viên tự đặt mật khẩu (chỉ khi tài khoản còn ở trạng thái "cần đổi mật khẩu"). */
+export async function firstLogin(_: FormState, formData: FormData): Promise<FormState> {
+  const msnv = String(formData.get("msnv") ?? "").trim().toUpperCase();
+  const pw = String(formData.get("password") ?? "");
+  const confirm = String(formData.get("confirm") ?? "");
+  if (!msnv) return { error: "Vui lòng nhập MSNV" };
+  if (pw.length < 8) return { error: "Mật khẩu tối thiểu 8 ký tự" };
+  if (pw !== confirm) return { error: "Hai mật khẩu không khớp" };
+  if (pw === "Wcm@" + msnv) return { error: "Hãy chọn mật khẩu khác mật khẩu mặc định" };
+  const problem = envProblem();
+  if (problem) return { error: problem };
+  const admin = createAdminClient();
+  const { data: p } = await admin.from("profiles").select("id,status,must_change_password").eq("msnv", msnv).maybeSingle();
+  if (!p || p.status !== "active") return { error: "MSNV không tồn tại hoặc tài khoản bị khóa. Liên hệ quản trị." };
+  if (!p.must_change_password) return { error: "Tài khoản này đã đặt mật khẩu. Hãy đăng nhập bằng mật khẩu của bạn, hoặc chọn Quên mật khẩu." };
+  const { error: ue } = await admin.auth.admin.updateUserById(p.id, { password: pw });
+  if (ue) return { error: "Không đặt được mật khẩu: " + ue.message };
+  await admin.from("profiles").update({ must_change_password: false }).eq("id", p.id);
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email: msnvToEmail(msnv), password: pw });
+  if (error) return { error: "Đã đặt mật khẩu, nhưng chưa đăng nhập được. Hãy đăng nhập lại." };
+  await logLogin(msnv, p.id, true);
+  redirect("/");
+}

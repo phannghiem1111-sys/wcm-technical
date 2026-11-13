@@ -44,7 +44,8 @@ export function LoginForm({ next, locked }: { next: string; locked: boolean }) {
         {pending && <Loader2 className="animate-spin" />} Đăng nhập
       </Button>
       <div className="text-center">
-        <Link href="/forgot-password" className="text-sm font-semibold text-primary">Quên mật khẩu?</Link>
+        <Link href="/first-login" className="block text-sm font-semibold text-primary">Lần đầu đăng nhập? Tự đặt mật khẩu</Link>
+        <Link href="/forgot-password" className="mt-2 block text-sm text-muted-foreground">Quên mật khẩu?</Link>
       </div>
     </form>
   );
