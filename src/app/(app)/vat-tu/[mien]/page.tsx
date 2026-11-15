@@ -29,7 +29,7 @@ export default async function MaterialAppPage({ params }: { params: Promise<{ mi
         </div>
         <Button size="sm" variant="outline" asChild><a href={app.url} target="_blank" rel="noopener"><ExternalLink /> Mở tab mới</a></Button>
       </div>
-      <MaterialFrame key={key} mien={key} url={app.url} title={app.label} />
+      <MaterialFrame key={key} mien={key} url={app.url} title={app.label} msnv={p.msnv} />
     </div>
   );
 }
