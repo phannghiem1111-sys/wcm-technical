@@ -17,7 +17,6 @@ const CHECKLIST_NAV: NavItem[] = [
   { href: "/inspections", label: "Kho biên bản", icon: FileText },
 ];
 const NAV: NavItem[] = [
-  { href: "/vat-tu", label: "App Vật tư MN", icon: Package },
   { href: "/plans", label: "Kế hoạch định kỳ", icon: CalendarCheck },
   { href: "/stores", label: "Cửa hàng", icon: Store },
 ];
@@ -44,7 +43,7 @@ function isActive(path: string, href: string) {
   return path.startsWith(href);
 }
 
-export function AppShell({ children, user }: { children: React.ReactNode; user: { full_name: string; msnv: string; role: AppRole } }) {
+export function AppShell({ children, user, materialApps = [] }: { children: React.ReactNode; user: { full_name: string; msnv: string; role: AppRole }; materialApps?: { href: string; label: string }[] }) {
   const path = usePathname();
   const collapsed = useSyncExternalStore(subscribe, getSnapshot, () => false);
   const adminItems = ADMIN_NAV.filter((n) => !n.roles || n.roles.includes(user.role));
@@ -68,6 +67,7 @@ export function AppShell({ children, user }: { children: React.ReactNode; user: 
               {CHECKLIST_NAV.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
             </div>
           </details>
+          {materialApps.map((a) => <SideLink key={a.href} item={{ href: a.href, label: a.label, icon: Package }} active={path.startsWith(a.href)} />)}
           {NAV.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
           {adminItems.length > 0 && <p className="px-3 pb-1 pt-4 text-[10px] font-bold uppercase tracking-widest text-zinc-500">Quản trị</p>}
           {adminItems.map((n) => <SideLink key={n.href} item={n} active={isActive(path, n.href)} />)}
