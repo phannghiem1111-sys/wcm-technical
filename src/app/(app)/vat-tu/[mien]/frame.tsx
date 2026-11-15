@@ -27,7 +27,6 @@ function saveToken(k: string, token: string | null) {
 export function MaterialFrame({ mien, url, title, msnv, tabs }: { mien: string; url: string; title: string; msnv: string; tabs: ReactNode }) {
   const k = keyOf(mien, msnv);
   const [src, setSrc] = useState<string | null>(null);
-  const [err, setErr] = useState<string | null>(null);
   const [round, setRound] = useState(0);
   // Toàn màn hình ngay trong app WCM (không bật trình duyệt/tab mới); nút Back của điện thoại cũng thoát được
   const [full, setFull] = useState(false);
@@ -53,10 +52,10 @@ export function MaterialFrame({ mien, url, title, msnv, tabs }: { mien: string; 
       .then((r) => r.json())
       .then((r: { ok: boolean; token?: string; error?: string }) => {
         if (off) return;
-        if (r.ok && r.token) { saveToken(k, r.token); setErr(null); open(r.token); }
-        else { setErr(r.error ?? "Không đăng nhập tự động được"); setSrc(url); }
+        if (r.ok && r.token) { saveToken(k, r.token); open(r.token); }
+        else { console.warn("[vat-tu] SSO:", r.error ?? "Không đăng nhập tự động được"); setSrc(url); }
       })
-      .catch(() => { if (!off) { setErr("Không đăng nhập tự động được"); setSrc(url); } });
+      .catch(() => { if (!off) { console.warn("[vat-tu] SSO:", "Không đăng nhập tự động được"); setSrc(url); } });
     return () => { off = true; };
   }, [mien, url, msnv, k, round]);
 
@@ -81,7 +80,6 @@ export function MaterialFrame({ mien, url, title, msnv, tabs }: { mien: string; 
         )}
         {full ? <span className="truncate text-sm font-bold">{title}</span> : <Button size="sm" variant="outline" onClick={() => setFull(true)}><Maximize2 /> Toàn màn hình</Button>}
       </div>
-      {err && <div className="bg-amber-50 px-3 py-1.5 text-xs text-amber-800 sm:px-6">{err}. Đăng nhập bằng MSNV + PIN của app vật tư.</div>}
       {src ? (
         <iframe src={src} title={title} className="w-full flex-1 border-0 bg-white" allow="camera; clipboard-write; geolocation" />
       ) : (
