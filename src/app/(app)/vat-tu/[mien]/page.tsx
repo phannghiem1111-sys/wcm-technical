@@ -6,6 +6,7 @@ import { allowedMaterialApps } from "@/lib/material/access";
 import { MATERIAL_APPS, type MaterialAppKey } from "@/lib/material/constants";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { MaterialFrame } from "./frame";
 
 export const metadata = { title: "App Vật tư" };
 
@@ -28,7 +29,7 @@ export default async function MaterialAppPage({ params }: { params: Promise<{ mi
         </div>
         <Button size="sm" variant="outline" asChild><a href={app.url} target="_blank" rel="noopener"><ExternalLink /> Mở tab mới</a></Button>
       </div>
-      <iframe key={key} src={app.url} title={app.label} className="w-full flex-1 border-0 bg-white" allow="camera; clipboard-write; geolocation" />
+      <MaterialFrame key={key} mien={key} url={app.url} title={app.label} />
     </div>
   );
 }
