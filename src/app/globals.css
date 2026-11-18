@@ -23,7 +23,7 @@
   --border: #e6e8ec;
   --input: #d1d5db;
   --ring: #d9232d;
-  --brand-dark: #111827;
+  --brand-dark: #0f4c5c;          /* teal đồng bộ dashboard */
 }
 
 @theme inline {

@@ -25,7 +25,7 @@ export default async function MaterialAppPage({ params }: { params: Promise<{ mi
       title={app.label}
       msnv={p.msnv}
       tabs={allowed.map((k) => (
-        <Link key={k} href={`/vat-tu/${k}`} className={cn("rounded-lg px-3 py-1.5 text-sm font-bold", k === key ? "bg-zinc-900 text-white" : "text-zinc-600 hover:bg-zinc-100")}>{MATERIAL_APPS[k].label}</Link>
+        <Link key={k} href={`/vat-tu/${k}`} className={cn("rounded-lg px-3 py-1.5 text-sm font-bold", k === key ? "bg-brand-dark text-white" : "text-zinc-600 hover:bg-zinc-100")}>{MATERIAL_APPS[k].label}</Link>
       ))}
     />
   );
