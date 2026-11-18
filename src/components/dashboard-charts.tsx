@@ -43,8 +43,8 @@ export function MonthlyChart({ data, months = 6 }: { data: Month[]; months?: num
           <YAxis allowDecimals={false} tick={AXIS} tickLine={false} axisLine={false} />
           <Tooltip cursor={{ fill: "#f3f4f6" }} contentStyle={TOOLTIP} />
           {STACK.map((k, i) => (
-            <Bar key={k.key} dataKey={k.key} name={k.name} stackId="a" fill={k.color} maxBarSize={44} radius={i === STACK.length - 1 ? [5, 5, 0, 0] : undefined}>
-              <LabelList dataKey={k.key} content={segmentLabel(k.key, rows)} />
+            <Bar key={k.key} dataKey={k.key} name={k.name} stackId="a" fill={k.color} maxBarSize={44} isAnimationActive={false} radius={i === STACK.length - 1 ? [5, 5, 0, 0] : undefined}>
+              <LabelList dataKey={(r: { label: string } & Record<StackKey, number>) => `${r[k.key]}|${r.label}`} content={segmentLabel(k.key, rows)} />
             </Bar>
           ))}
         </BarChart>
@@ -54,10 +54,12 @@ export function MonthlyChart({ data, months = 6 }: { data: Month[]; months?: num
 }
 
 // Số trong từng phần cột (ẩn khi = 0 hoặc quá mỏng) + tổng trên đỉnh phần cao nhất khác 0.
-function segmentLabel(key: StackKey, rows: (Month & { total: number })[]) {
+function segmentLabel(key: StackKey, rows: (Month & { total: number; label: string })[]) {
   return function SegmentLabel(p: { x?: unknown; y?: unknown; width?: unknown; height?: unknown; value?: unknown; index?: number }) {
-    const v = Number(p.value), x = Number(p.x), y = Number(p.y), w = Number(p.width), h = Number(p.height);
-    const row = rows[p.index ?? -1];
+    // Recharts đánh index theo nhãn khác 0, nên tra hàng theo nhãn tháng gửi kèm trong value.
+    const [vs, lbl] = String(p.value ?? "").split("|");
+    const v = Number(vs), x = Number(p.x), y = Number(p.y), w = Number(p.width), h = Number(p.height);
+    const row = rows.find((r) => r.label === lbl);
     if (!v || !row) return null;
     const topKey = [...STACK].reverse().find((k) => row[k.key] > 0)?.key;
     return (
@@ -85,11 +87,11 @@ export function ResultPie({ data }: { data: Record<string, number> }) {
   const pct = (v: number) => (total ? Math.round((v / total) * 100) : 0);
   const label = ({ cx, cy, midAngle, innerRadius, outerRadius, value, percent }: PieLabelRenderProps) => {
     const v = Number(value);
-    if (!v || Number(percent) < 0.06) return null;
+    if (!v || Number(percent) < 0.08) return null;
     const r = (Number(innerRadius) + Number(outerRadius)) / 2;
     const a = (-Number(midAngle) * Math.PI) / 180;
     return (
-      <text x={Number(cx) + r * Math.cos(a)} y={Number(cy) + r * Math.sin(a)} fill="#fff" fontSize={11} fontWeight={700} textAnchor="middle" dominantBaseline="central">{v}</text>
+      <text x={Number(cx) + r * Math.cos(a)} y={Number(cy) + r * Math.sin(a)} fill="#fff" fontSize={11} fontWeight={700} textAnchor="middle" dominantBaseline="central">{v} ({pct(v)}%)</text>
     );
   };
   return (
@@ -98,7 +100,7 @@ export function ResultPie({ data }: { data: Record<string, number> }) {
         <PieChart>
           <text x="50%" y="50%" textAnchor="middle" dominantBaseline="central" dy={-7} fontSize={24} fontWeight={800} fill="#1f2937">{total}</text>
           <text x="50%" y="50%" textAnchor="middle" dominantBaseline="central" dy={15} fontSize={11} fill="#8a909c">lỗi</text>
-          <Pie data={rows} dataKey="value" nameKey="name" innerRadius={58} outerRadius={84} paddingAngle={rows.length > 1 ? 2 : 0} cornerRadius={4} stroke="none" label={label} labelLine={false} isAnimationActive={false}>
+          <Pie data={rows} dataKey="value" nameKey="name" innerRadius={54} outerRadius={86} paddingAngle={rows.length > 1 ? 2 : 0} cornerRadius={4} stroke="none" label={label} labelLine={false} isAnimationActive={false}>
             {rows.map((r) => <Cell key={r.name} fill={r.fill} />)}
           </Pie>
           <Tooltip contentStyle={TOOLTIP} />
