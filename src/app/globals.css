@@ -5,7 +5,7 @@
 
 :root {
   --radius: 0.75rem;
-  --background: #f4f5f7;
+  --background: #f6f7f9;
   --foreground: #111827;
   --card: #ffffff;
   --card-foreground: #111827;
@@ -15,12 +15,12 @@
   --primary-foreground: #ffffff;
   --secondary: #f3f4f6;
   --secondary-foreground: #111827;
-  --muted: #f3f4f6;
+  --muted: #eef0f3;
   --muted-foreground: #6b7280;
   --accent: #fef2f2;
   --accent-foreground: #b91c1c;
   --destructive: #dc2626;
-  --border: #e5e7eb;
+  --border: #e6e8ec;
   --input: #d1d5db;
   --ring: #d9232d;
   --brand-dark: #111827;
