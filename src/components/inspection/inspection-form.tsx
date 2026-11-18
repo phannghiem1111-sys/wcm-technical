@@ -316,7 +316,7 @@ export function InspectionForm({ formType, sections, inspector, initialStore, pl
         return (
           <Card key={section.code} className="overflow-hidden">
             <button type="button" onClick={() => setOpen({ ...open, [section.code]: collapsed })} className={cn("flex w-full items-center gap-3 px-4 py-3.5 text-left", isMaint ? "bg-amber-50" : "bg-zinc-100")}>
-              <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-black text-white", isMaint ? "bg-amber-600" : "bg-zinc-900")}>{si + 1}</span>
+              <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-md text-xs font-black text-white", isMaint ? "bg-amber-600" : "bg-brand-dark")}>{si + 1}</span>
               <span className="flex-1 text-[13px] font-extrabold uppercase tracking-wide">{section.title}</span>
               <span className={cn("rounded-full px-2 py-0.5 text-xs font-bold", done === rows.length ? "bg-emerald-100 text-emerald-700" : "bg-white text-zinc-600")}>{done}/{rows.length}</span>
               <ChevronDown className={cn("size-5 transition-transform", collapsed && "-rotate-90")} />
